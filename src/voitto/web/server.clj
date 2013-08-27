@@ -6,8 +6,8 @@
        voitto.web.views.base
        voitto.web.views.daybook
        voitto.web.views.dashboard
+       voitto.web.views.transaction
        ;voitto.web.views.ledger
-       ;voitto.web.views.transaction
        voitto.model))
 
 (def error-404 (base nil
@@ -18,7 +18,9 @@
 (defroutes routes
   (GET "/" [] dashboard-view)
   (GET "/daybook" [] daybook-view)
-  ;(GET "/ledger/:account" [account] ledger-view)
+  (context "/transaction/:txnid" [txnid]
+           (GET "/" [] transaction-view)
+           (POST "/" [] transaction-update-handler))
   ;(context "/transaction/:txnid" []
   ;         (GET "/" [] transaction-view)
   ;         (POST "/" [] transaction-update-handler))
@@ -26,4 +28,5 @@
   (files "/")
   (not-found error-404))
 
-(run-server (site #'routes) {:port 3000})
+(defonce server
+  (run-server (site #'routes) {:port 3000}))

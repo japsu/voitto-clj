@@ -5,9 +5,8 @@
 
 (defn render-navigation-link [current-section [section href text]]
   (let
-    [css-class (if
-                 (= section current-section) "active"
-                 nil)]
+    [css-class (if (= section current-section) "active"
+                   nil)]
     
     [:li {:class css-class}
      [:a {:href href} text]]))
@@ -26,7 +25,7 @@
       [:head
        [:title "Foo"]
        [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
-       [:link {:href "bootstrap.min.css" :rel "stylesheet" :media "screen"}]]
+       [:link {:href "/bootstrap.min.css" :rel "stylesheet" :media "screen"}]]
       [:body
        [:div.navbar.navbar-default.navbar-static-top
         [:div.container
@@ -41,8 +40,8 @@
          [:div.navbar-collapse.collapse
           (render-navigation-links section)]]]
        content
-       [:script {:src "jquery.min.js"}]
-       [:script {:src "bootstrap.min.js"}]])))
+       [:script {:src "/jquery.min.js"}]
+       [:script {:src "/bootstrap.min.js"}]])))
 
 (defn respond [req section content]
   {:status 200

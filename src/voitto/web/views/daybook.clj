@@ -45,13 +45,11 @@
 (defn render-event-in-table [event]
   (cond
     (simple-event? event) (render-simple-event-in-table event)
-    (split-event? event) (render-split-event-in-table event)
-    :else (render-invalid-event-in-table event)))
+    (split-event? event)  (render-split-event-in-table event)
+    :else                 (render-invalid-event-in-table event)))
 
 (defn render-event-table [events]
-  [:div#content.container
-   [:h2 "Daybook"]
-   [:table.table.table-striped
+  [:table.table.table-striped
     [:thead
      [:tr
       [:th "Date"]
@@ -61,7 +59,16 @@
       [:th "To account"]
       [:th.text-right "Sum"]]]
     [:tbody
-     (map render-event-in-table events)]]])
+     (map render-event-in-table events)]])
+
+(defn daybook-toolbar []
+  [:div.btn-toolbar.pull-right
+   [:div.btn-group
+    [:a.btn.btn-success {:href "/transaction/new"} "New event"]]])
 
 (defn daybook-view [req]
-  (respond req :daybook (render-event-table example-events)))
+  (respond req :daybook
+           [:div#content.container
+            (daybook-toolbar) 
+            [:h2 "Daybook"]
+            (render-event-table example-events)]))
