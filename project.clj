@@ -1,5 +1,5 @@
-(defproject voitto-clj "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+(defproject voitto "0.1.0-SNAPSHOT"
+  :description "A simple yet efficient double-entry bookkeeping system"
   :url "https://github.com/japsu/voitto-clj"
   :license {:name "MIT"
             :url "http://opensource.org/licenses/MIT"}
