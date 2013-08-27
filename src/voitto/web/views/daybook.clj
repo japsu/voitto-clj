@@ -64,7 +64,8 @@
 (defn daybook-toolbar []
   [:div.btn-toolbar.pull-right
    [:div.btn-group
-    [:a.btn.btn-success {:href "/transaction/new"} "New event"]]])
+    [:a.btn.btn-success {:href "/transaction/new"} "New transaction"]
+    [:a.btn.btn-default {:href "/recurrent-transactions"} "Manage recurrent transactions"]]])
 
 (defn daybook-view [req]
   (respond req :daybook

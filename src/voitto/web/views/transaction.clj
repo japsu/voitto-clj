@@ -23,7 +23,6 @@
   [:button {:type "submit" :class "btn btn-success"} "Save"]])
 
 (defn transaction-view [req]
-  (prn req)
   (respond req :daybook
            [:div#content.container
             [:h2 "Transaction"]
