@@ -21,9 +21,6 @@
   (context "/transaction/:txnid" [txnid]
            (GET "/" [] transaction-view)
            (POST "/" [] transaction-update-handler))
-  ;(context "/transaction/:txnid" []
-  ;         (GET "/" [] transaction-view)
-  ;         (POST "/" [] transaction-update-handler))
   
   (files "/")
   (not-found error-404))

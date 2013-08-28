@@ -40,7 +40,7 @@
    [:td (format-date (:date event))]
    [:td (:comment event)]
    [:td (:other-party event)]
-   [:td.muted {:colspan 3} "Unbalanced event"]])
+   [:td {:colspan 3}]])
 
 (defn render-event-in-table [event]
   (cond
@@ -64,8 +64,7 @@
 (defn daybook-toolbar []
   [:div.btn-toolbar.pull-right
    [:div.btn-group
-    [:a.btn.btn-success {:href "/transaction/new"} "New transaction"]
-    [:a.btn.btn-default {:href "/recurrent-transactions"} "Manage recurrent transactions"]]])
+    [:a.btn.btn-success {:href "/transaction/new"} "New transaction"]]])
 
 (defn daybook-view [req]
   (respond req :daybook
