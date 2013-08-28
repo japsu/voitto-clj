@@ -2,54 +2,37 @@
   (use voitto.helpers
        voitto.model
        voitto.db
-       voitto.web.views.base))
+       voitto.web.views.base
+       voitto.web.views.helpers))
 
-(defn render-simple-event-in-table [event]
-  {:pre [(simple-event? event)]}
+(defn display-account-in-table [pred event]
   (let
-    [from-account (->> (:event/entry event)
-                       (find-first (comp neg? :entry/cents))
-                       (:entry/account)
-                       (:account/name))
-     to-account   (->> (:event/entry event)
-                       (find-first (comp pos? :entry/cents))
-                       (:entry/account)
-                       (:account/name))
-     total        (->> (event-total event)
-                       (format-cents))]
-    
-    [:tr
-	   [:td (format-date (:event/date event))]
-	   [:td (:event/comment event)]
-	   [:td (:event/otherParty event)]
-	   [:td from-account]
-	   [:td to-account]
-	   [:td.text-right total]]))
-
-(defn render-split-event-in-table [event]
-  {:pre [(split-event? event)]}
-  
-  [:tr
-   [:td (format-date (:event/date event))]
-   [:td (:event/comment event)]
-   [:td (:event/otherParty event)]
-   [:td.text-muted "Split"]
-   [:td.text-muted "Split"]
-   [:td.text-right (format-cents (event-total event))]])
-
-(defn render-invalid-event-in-table [event]
-  {:pre [(not (balanced-event? event))]}
-  [:tr.danger
-   [:td (format-date (:event/date event))]
-   [:td (:event/comment event)]
-   [:td (:event/otherParty event)]
-   [:td {:colspan 3}]])
+    [matching-entries (->> (:event/entry event)
+                           (filter (comp pred :entry/cents)))]
+       
+    (case (count matching-entries)
+      0     [:td.text-muted "Missing"]
+      1     [:td (->> matching-entries
+                      (first)
+                      (:entry/account)
+                      (:account/name))]
+      :else [:td.text-muted "Split"])))
 
 (defn render-event-in-table [event]
-  (cond
-    (simple-event? event) (render-simple-event-in-table event)
-    (split-event? event)  (render-split-event-in-table event)
-    :else                 (render-invalid-event-in-table event)))
+  (let
+    [css-classes (cond
+                      (not (balanced-event? event)) "danger"
+                      :else nil)
+     total       (->> (event-total event)
+                      (format-cents))]
+    
+    [:tr {:class css-classes}
+     [:td (format-date (:event/date event))]
+     [:td (transaction-link event (:event/comment event))]
+     [:td (:event/otherParty event)]
+     (display-account-in-table neg? event)
+     (display-account-in-table pos? event)
+		 [:td.text-right total]]))
 
 (defn render-event-table [events]
   [:table.table.table-striped

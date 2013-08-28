@@ -3,9 +3,6 @@
        voitto.model
        voitto.web.views.base))
 
-(defn transaction-uri [{event-id :id :or {event-id "new"}}]
-  (str "/transaction/" event-id))
-
 (defn render-transaction-form [event]
   [:form {:role "form" :method "post" :action (transaction-uri event)}
    [:fieldset
