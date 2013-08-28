@@ -20,13 +20,13 @@ Assuming you have [Leiningen](https://github.com/technomancy/leiningen) installe
 ## Technology choices
 
 * Backend
-** [Clojure](https://github.com/clojure/clojure)
-** [HTTP-Kit](https://github.com/http-kit/http-kit)
-** [Compojure](https://github.com/weavejester/compojure)
-** [Hiccup](https://github.com/weavejester/hiccup)
-** [Datomic Free](https://www.datomic.com) database (PROPRIETARY!)
+  * [Clojure](https://github.com/clojure/clojure)
+  * [HTTP-Kit](https://github.com/http-kit/http-kit)
+  * [Compojure](https://github.com/weavejester/compojure)
+  * [Hiccup](https://github.com/weavejester/hiccup)
+  * [Datomic Free](https://www.datomic.com) database (PROPRIETARY!)
 * Frontend
-** Progressive enhancement (*not* a single page application)
-** [jQuery](https://github.com/jquery/jquery) 1.10.x
-** [Twitter Bootstrap](https://github.com/twitter/bootstrap)
-** [Typeahead.js](https://github.com/twitter/typeahead.js)
+  * Progressive enhancement (__not__ a single page application)
+  * [jQuery](https://github.com/jquery/jquery) 1.10.x
+  * [Twitter Bootstrap](https://github.com/twitter/bootstrap)
+  * [Typeahead.js](https://github.com/twitter/typeahead.js)
