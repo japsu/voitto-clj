@@ -155,6 +155,9 @@
        (map first)
        (map (partial d/entity (db @conn)))))
 
+(defn get-event [event-id]
+  (d/entity (db @conn) event-id))
+
 (->> (db @conn)
      (q '[:find ?evn
           :where

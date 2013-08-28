@@ -18,7 +18,7 @@
 (defroutes routes
   (GET "/" [] dashboard-view)
   (GET "/daybook" [] daybook-view)
-  (context "/transaction/:txnid" [txnid]
+  (context "/transaction/:event-id" [event-id]
            (GET "/" [] transaction-view)
            (POST "/" [] transaction-update-handler))
   

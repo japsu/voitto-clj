@@ -47,7 +47,7 @@
     [:tbody
      (map render-event-in-table events)]])
 
-(defn daybook-toolbar []
+(def daybook-toolbar
   [:div.btn-toolbar.pull-right
    [:div.btn-group
     [:a.btn.btn-success {:href "/transaction/new"} "New transaction"]]])
@@ -55,6 +55,6 @@
 (defn daybook-view [req]
   (respond req :daybook
            [:div#content.container
-            (daybook-toolbar) 
+            daybook-toolbar 
             [:h1 "Daybook"]
             (render-event-table (get-events))]))
