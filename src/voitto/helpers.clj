@@ -1,5 +1,6 @@
 (ns voitto.helpers
-  (use [clj-time.format :only [formatter unparse-local-date]]))
+  (use [clj-time.format :only [formatter unparse]]
+       [clj-time.coerce :only [from-date]]))
 
 (defn find-first [f coll]
   (first (filter f coll)))
@@ -16,4 +17,5 @@
     (str bucks decimal-separator leftover-cents currency)))
 
 (defn format-date [date]
-  (unparse-local-date custom-formatter date))
+  (->> (from-date date)
+       (unparse custom-formatter)))

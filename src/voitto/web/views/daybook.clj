@@ -1,24 +1,27 @@
 (ns voitto.web.views.daybook
   (use voitto.helpers
        voitto.model
+       voitto.db
        voitto.web.views.base))
 
 (defn render-simple-event-in-table [event]
   {:pre [(simple-event? event)]}
   (let
-    [from-account (->> (:entries event)
-                       (find-first (comp neg? :cents))
-                       (:account))
-     to-account   (->> (:entries event)
-                       (find-first (comp pos? :cents))
-                       (:account))
+    [from-account (->> (:event/entry event)
+                       (find-first (comp neg? :entry/cents))
+                       (:entry/account)
+                       (:account/name))
+     to-account   (->> (:event/entry event)
+                       (find-first (comp pos? :entry/cents))
+                       (:entry/account)
+                       (:account/name))
      total        (->> (event-total event)
                        (format-cents))]
     
     [:tr
-	   [:td (format-date (:date event))]
-	   [:td (:comment event)]
-	   [:td (:other-party event)]
+	   [:td (format-date (:event/date event))]
+	   [:td (:event/comment event)]
+	   [:td (:event/otherParty event)]
 	   [:td from-account]
 	   [:td to-account]
 	   [:td.text-right total]]))
@@ -27,19 +30,19 @@
   {:pre [(split-event? event)]}
   
   [:tr
-   [:td (format-date (:date event))]
-   [:td (:comment event)]
-   [:td (:other-party event)]
-   [:td.muted {:colspan 2} "Split event"]
+   [:td (format-date (:event/date event))]
+   [:td (:event/comment event)]
+   [:td (:event/otherParty event)]
+   [:td.text-muted "Split"]
+   [:td.text-muted "Split"]
    [:td.text-right (format-cents (event-total event))]])
 
 (defn render-invalid-event-in-table [event]
   {:pre [(not (balanced-event? event))]}
-  
   [:tr.danger
-   [:td (format-date (:date event))]
-   [:td (:comment event)]
-   [:td (:other-party event)]
+   [:td (format-date (:event/date event))]
+   [:td (:event/comment event)]
+   [:td (:event/otherParty event)]
    [:td {:colspan 3}]])
 
 (defn render-event-in-table [event]
@@ -70,5 +73,5 @@
   (respond req :daybook
            [:div#content.container
             (daybook-toolbar) 
-            [:h2 "Daybook"]
-            (render-event-table example-events)]))
+            [:h1 "Daybook"]
+            (render-event-table (get-events))]))

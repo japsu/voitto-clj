@@ -7,6 +7,7 @@
                  [clj-time "0.6.0"]
                  [hiccup "1.0.4"]
                  [http-kit "2.1.10"]
-                 [compojure "1.1.5"]]
+                 [compojure "1.1.5"]
+                 [com.datomic/datomic-free "0.8.4143"]]
   :plugins [[no-man-is-an-island/lein-eclipse "2.0.0"]]
   :main voitto.web.server)
