@@ -26,4 +26,4 @@
   (not-found error-404))
 
 (defonce server
-  (run-server (site #'routes) {:port 3000}))
+  (run-server (site #'routes) {:port 8000}))

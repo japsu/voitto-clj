@@ -1,9 +1,6 @@
 (ns voitto.model
   (use [clj-time.core :only [local-date]]))
 
-(defonce id-counter (atom 0))
-(defn id! [] (swap! id-counter inc))
-
 (def example-events
   [{:date (local-date 2013 8 26)
     :comment "Opening the books"

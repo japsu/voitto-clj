@@ -1,9 +1,17 @@
 (ns voitto.web.views.transaction
-  (use voitto.helpers
+  (use [hiccup.util :only [escape-html]]
+       voitto.helpers
        voitto.model
        voitto.db
        voitto.web.views.base
        voitto.web.views.helpers))
+
+
+(defn transaction-uri [{event-id :db/id :or {event-id "new"}}]
+  (str "/transaction/" event-id))
+
+(defn transaction-link [event content]
+  [:a {:href (transaction-uri event)} content])
 
 (defn input [{:keys [label name type value] :or {type "text" value ""}}]
   (let
@@ -20,13 +28,12 @@
 
 (defn render-transaction-form [event]
   (let
-    [date        (->> (or (:event/date event)
-                          (java.util.Date.))
+    [date        (->> (or (:event/date event) (java.util.Date.))
                       (format-date))
-     comment     (or  (:event/comment event)
-                      "")
-     other-party (or  (:event/otherParty event)
-                      "")]
+     comment     (->> (or (:event/comment event) "")
+                      (escape-html))
+     other-party (->> (or (:event/otherParty event) "")
+                      (escape-html))]
     
     [:form {:role "form" :method "post" :action (transaction-uri event)}
      (transaction-toolbar)
@@ -73,8 +80,10 @@
              [:div#content.container
               (render-transaction-form event)])))
 
+;; XXX
+(defn save-event [])
+
 (defn transaction-update-handler [req]
   (let
     [event ()]
-    @(d/transact [event] (db @conn))
-    
+    (save-event event)))
