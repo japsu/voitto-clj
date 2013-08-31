@@ -7,11 +7,11 @@
        voitto.web.views.helpers))
 
 
-(defn transaction-uri [{event-id :db/id :or {event-id "new"}}]
-  (str "/transaction/" event-id))
+(defn transaction-uri [{transaction-id :db/id :or {transaction-id "new"}}]
+  (str "/transaction/" transaction-id))
 
-(defn transaction-link [event content]
-  [:a {:href (transaction-uri event)} content])
+(defn transaction-link [transaction content]
+  [:a {:href (transaction-uri transaction)} content])
 
 (defn input [{:keys [label name type value] :or {type "text" value ""}}]
   (let
@@ -26,16 +26,16 @@
     [:button.btn.btn-danger {:type "submit" :name "_method" :value "delete"} "Delete"]
     [:button.btn.btn-success {:type "submit" :name "_method" :value "post"} "Save"]]])
 
-(defn render-transaction-form [event]
+(defn render-transaction-form [transaction]
   (let
-    [date        (->> (or (:event/date event) (java.util.Date.))
+    [date        (->> (or (:transaction/date transaction) (java.util.Date.))
                       (format-date))
-     comment     (->> (or (:event/comment event) "")
+     comment     (->> (or (:transaction/comment transaction) "")
                       (escape-html))
-     other-party (->> (or (:event/otherParty event) "")
+     other-party (->> (or (:transaction/otherParty transaction) "")
                       (escape-html))]
     
-    [:form {:role "form" :method "post" :action (transaction-uri event)}
+    [:form {:role "form" :method "post" :action (transaction-uri transaction)}
      (transaction-toolbar)
      [:legend "Transaction details"]
 	   [:fieldset
@@ -69,21 +69,20 @@
 
 (defn transaction-view [req]
   (let
-    [event-id (get-in req [:params :event-id])
-     event    (case event-id
+    [transaction-id (get-in req [:params :transaction-id])
+     transaction    (case transaction-id
                     "new" {}
-                    (->> (get-in req [:params :event-id])
+                    (->> (get-in req [:params :transaction-id])
                          (Long.)
-                         (get-event)))]
+                         (get-transaction)))]
     
     (respond req :daybook
              [:div#content.container
-              (render-transaction-form event)])))
+              (render-transaction-form transaction)])))
 
 ;; XXX
-(defn save-event [])
+(defn save-transaction [])
 
 (defn transaction-update-handler [req]
-  (let
-    [event ()]
-    (save-event event)))
+  (prn req)
+  (respond req :daybook [:h1 "Ok"]))

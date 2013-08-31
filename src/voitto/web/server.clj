@@ -18,10 +18,8 @@
 (defroutes routes
   (GET "/" [] dashboard-view)
   (GET "/daybook" [] daybook-view)
-  (context "/transaction/:event-id" [event-id]
-           (GET "/" [] transaction-view)
-           (POST "/" [] transaction-update-handler))
-  
+  (GET "/transaction/:transaction-id" [transaction-id] transaction-view)
+  (POST "/transaction/:transaction-id" [transaction-id] "foo")
   (files "/")
   (not-found error-404))
 

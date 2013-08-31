@@ -1,7 +1,7 @@
 (ns voitto.db
   (:use [datomic.api :only [q db tempid] :as d]
         [clj-time.coerce :only [to-date]]
-        [voitto.model :only [example-events]]))
+        [voitto.model :only [example-transactions]]))
 
 (def db-uri "datomic:mem://play")
 (d/create-database db-uri)
@@ -44,25 +44,25 @@
    {:db/id #db/id[:db.part/db]
     :db/ident :account.type/expense}])
 
-(def event-schema
+(def transaction-schema
   [{:db/id #db/id[:db.part/db]
-    :db/ident :event/date
+    :db/ident :transaction/date
     :db/valueType :db.type/instant
     :db/cardinality :db.cardinality/one
     :db/index true
-    :db/doc "Date of the event. Time part is insignificant."
+    :db/doc "Date of the transaction. Time part is insignificant."
     :db.install/_attribute :db.part/db}
    
    {:db/id #db/id[:db.part/db]
-    :db/ident :event/comment
+    :db/ident :transaction/comment
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one
     :db/fulltext true
-    :db/doc "A descriptive comment about the event."
+    :db/doc "A descriptive comment about the transaction."
     :db.install/_attribute :db.part/db}
    
    {:db/id #db/id[:db.part/db]
-    :db/ident :event/otherParty
+    :db/ident :transaction/otherParty
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one
     :db/fulltext true
@@ -70,11 +70,11 @@
     :db.install/_attribute :db.part/db}
   
    {:db/id #db/id[:db.part/db]
-    :db/ident :event/entry
+    :db/ident :transaction/entry
     :db/valueType :db.type/ref
     :db/isComponent true
     :db/cardinality :db.cardinality/many
-    :db/doc "The event consists of multiple entries."
+    :db/doc "The transaction consists of multiple entries."
     :db.install/_attribute :db.part/db}])
 
 (def entry-schema
@@ -93,7 +93,7 @@
     :db/doc "The amount of the entry in 1/100ths of the currency ('cents'). Positive amount is debit, negative amount is credit."
     :db.install/_attribute :db.part/db}])
 
-(def schema (concat account-schema event-schema entry-schema))
+(def schema (concat account-schema transaction-schema entry-schema))
 
 @(d/transact @conn schema)
 
@@ -133,38 +133,38 @@
    :entry/account (get-account-id-by-ident account)
    :entry/cents cents})
 
-(defn event-to-entity [{:keys [date comment other-party entries]}]
+(defn transaction-to-entity [{:keys [date comment other-party entries]}]
   {:db/id (tempid :db.part/user)
-   :event/date (to-date date)
-   :event/comment comment
-   :event/otherParty (or other-party "")
-   :event/entry (map entry-to-entity entries)})
+   :transaction/date (to-date date)
+   :transaction/comment comment
+   :transaction/otherParty (or other-party "")
+   :transaction/entry (map entry-to-entity entries)})
 
-(defn insert-events [events]
-  (->> events
-       (map event-to-entity)
+(defn insert-transactions [transactions]
+  (->> transactions
+       (map transaction-to-entity)
        (d/transact @conn)))
 
-@(insert-events example-events)
+@(insert-transactions example-transactions)
 
-(defn get-events []
+(defn get-transactions []
   (->> (db @conn)
        (q '[:find ?evn
             :where
-            [?evn :event/date _]])
+            [?evn :transaction/date _]])
        (map first)
        (map (partial d/entity (db @conn)))))
 
-(defn get-event [event-id]
-  (d/entity (db @conn) event-id))
+(defn get-transaction [transaction-id]
+  (d/entity (db @conn) transaction-id))
 
 (->> (db @conn)
      (q '[:find ?evn
           :where
           [?acc :account/type :account.type/expense]
           [?ent :entry/account ?acc]
-          [?evn :event/entry ?ent]
-          [?evn :event/comment ?comment]])
+          [?evn :transaction/entry ?ent]
+          [?evn :transaction/comment ?comment]])
      (first) (first)
      (d/entity (db @conn))
      (into {}))

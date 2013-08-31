@@ -22,5 +22,5 @@
   (str "/ledger/" ident))
 
 (defn ledger-link [{name :account/name :as account}]
-  [:a {:href (ledger-uri account)} name])
+  [:a {:href (ledger-uri account)} (escape-html name)])
 

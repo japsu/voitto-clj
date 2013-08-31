@@ -1,7 +1,7 @@
 (ns voitto.model
   (use [clj-time.core :only [local-date]]))
 
-(def example-events
+(def example-transactions
   [{:date (local-date 2013 8 26)
     :comment "Opening the books"
     :entries [{:account :openings
@@ -22,7 +22,7 @@
               {:account :ice-cream
                :cents 300}]}
    {:date (local-date 2013 8 27)
-    :comment "Example unbalanced event"
+    :comment "Example unbalanced transaction"
     :entries [{:account :cash
                :cents -20}]}])
 
@@ -31,30 +31,30 @@
          cents   :entry/cents}]
   (merge-with + bals (assoc {} account cents)))
 
-(defn process-event [bals {entries :event/entry}]
+(defn process-transaction [bals {entries :transaction/entry}]
   (reduce process-entry bals entries))
 
-(defn balances [events]
-  (reduce process-event {} events))
+(defn balances [transactions]
+  (reduce process-transaction {} transactions))
 
-(defn balanced-event? [event]
-  (->> (:event/entry event)
+(defn balanced-transaction? [transaction]
+  (->> (:transaction/entry transaction)
        (map :entry/cents)
        (reduce + 0)
        (= 0)))
 
-(defn simple-event? [event]
+(defn simple-transaction? [transaction]
   (and
-    (balanced-event? event)
-    (= 2 (count (:event/entry event)))))
+    (balanced-transaction? transaction)
+    (= 2 (count (:transaction/entry transaction)))))
 
-(defn split-event? [event]
+(defn split-transaction? [transaction]
   (and
-    (balanced-event? event)
-    (> 2 (count (:event/entry event)))))
+    (balanced-transaction? transaction)
+    (> 2 (count (:transaction/entry transaction)))))
 
-(defn event-total [event]
-  (->> (:event/entry event)
+(defn transaction-total [transaction]
+  (->> (:transaction/entry transaction)
 			 (map :entry/cents)
 			 (partition-by pos?)
 			 (map (partial reduce + 0))

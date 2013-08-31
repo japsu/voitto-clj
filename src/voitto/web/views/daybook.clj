@@ -27,9 +27,9 @@
 (defn date-link [date]
   [:a {:href (daybook-uri {:from date :to date})} (format-date date)])
 
-(defn display-account-in-table [pred event]
+(defn display-account-in-table [pred transaction]
   (let
-    [matching-entries (->> (:event/entry event)
+    [matching-entries (->> (:transaction/entry transaction)
                            (filter (comp pred :entry/cents)))]
        
     (case (count matching-entries)
@@ -37,35 +37,34 @@
       1     [:td (->> matching-entries
                       (first)
                       (:entry/account)
-                      (escape-html)
                       (ledger-link))]
             [:td.text-muted "Split"])))
 
-(defn render-event-in-table [event]
+(defn render-transaction-in-table [transaction]
   (let
-    [css-classes (if  (not (balanced-event? event)) "danger" nil)
-     date-link   (->> (:event/date event)
+    [css-classes (if  (not (balanced-transaction? transaction)) "danger" nil)
+     date-link   (->> (:transaction/date transaction)
                       (date-link))
-     txn-link    (->> (:event/comment event)
+     txn-link    (->> (:transaction/comment transaction)
                       (escape-html)
-                      (transaction-link event))
-     ;oparty-link (->> (:event/otherParty event)
+                      (transaction-link transaction))
+     ;oparty-link (->> (:transaction/otherParty transaction)
      ;                 (other-party-link))
-     oparty-link (->> (:event/otherParty event)
+     oparty-link (->> (:transaction/otherParty transaction)
                       (escape-html)
-                      (transaction-link event))
-     total       (->> (event-total event)
+                      (transaction-link transaction))
+     total       (->> (transaction-total transaction)
                       (format-cents))]
     
     [:tr {:class css-classes}
      [:td date-link]
      [:td txn-link]
      [:td oparty-link]
-     (display-account-in-table neg? event)
-     (display-account-in-table pos? event)
+     (display-account-in-table neg? transaction)
+     (display-account-in-table pos? transaction)
 		 [:td.text-right total]]))
 
-(defn render-event-table [events]
+(defn render-transaction-table [transactions]
   [:table.table.table-striped
     [:thead
      [:tr
@@ -76,11 +75,11 @@
       [:th "To account"]
       [:th.text-right "Sum"]]]
     [:tbody
-     (map render-event-in-table events)]])
+     (map render-transaction-in-table transactions)]])
 
 (defn daybook-view [req]
   (respond req :daybook
            [:div#content.container
             (daybook-toolbar) 
             [:h1 "Daybook"]
-            (render-event-table (get-events))]))
+            (render-transaction-table (get-transactions))]))

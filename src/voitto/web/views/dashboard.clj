@@ -7,8 +7,8 @@
 
 (defn dashboard-view [req]
   (let
-    [recurrent-and-future-events (get-events)
-     recent-events               (get-events)]
+    [recurrent-and-future-transactions (get-transactions)
+     recent-transactions               (get-transactions)]
     (respond req :dashboard
 	           [:div#content.container
 	            [:div.row
@@ -42,8 +42,8 @@
 	            [:div.panel.panel-default
 	             [:div.panel-heading
 	              [:strong "Recurrent and future transactions waiting to happen"]]
-	             (render-event-table recurrent-and-future-events)]
+	             (render-transaction-table recurrent-and-future-transactions)]
 	            [:div.panel.panel-default
 	             [:div.panel-heading
 	              [:strong "Recent transactions"]]
-	             (render-event-table recent-events)]])))
+	             (render-transaction-table recent-transactions)]])))
