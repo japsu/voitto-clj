@@ -16,8 +16,6 @@
   {:from {:format format-date :parse parse-date}
    :to   {:format format-date :parse parse-date}})
 
-(format-params daybook-view-params {:from (java.util.Date.)})
-
 (defn daybook-uri [params]
   (->> params
        (format-params daybook-view-params)
@@ -30,7 +28,7 @@
 (defn display-account-in-table [pred transaction]
   (let
     [matching-entries (->> (:transaction/entry transaction)
-                           (filter (comp pred :entry/cents)))]
+                           (filter pred))]
        
     (case (count matching-entries)
       0     [:td.text-muted "Missing"]
@@ -60,8 +58,8 @@
      [:td date-link]
      [:td txn-link]
      [:td oparty-link]
-     (display-account-in-table neg? transaction)
-     (display-account-in-table pos? transaction)
+     (display-account-in-table (comp neg? :entry/cents) transaction)
+     (display-account-in-table (comp pos? :entry/cents) transaction)
 		 [:td.text-right total]]))
 
 (defn render-transaction-table [transactions]
@@ -78,8 +76,10 @@
      (map render-transaction-in-table transactions)]])
 
 (defn daybook-view [req]
-  (respond req :daybook
+  (let
+    [params (parse-params daybook-view-params (req :params))]
+    (respond req :daybook
            [:div#content.container
             (daybook-toolbar) 
             [:h1 "Daybook"]
-            (render-transaction-table (get-transactions))]))
+            (render-transaction-table (get-all-transactions))])))

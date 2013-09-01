@@ -7,8 +7,8 @@
 
 (defn dashboard-view [req]
   (let
-    [recurrent-and-future-transactions (get-transactions)
-     recent-transactions               (get-transactions)]
+    [recurrent-and-future-transactions (get-all-transactions)
+     recent-transactions               (get-all-transactions)]
     (respond req :dashboard
 	           [:div#content.container
 	            [:div.row

@@ -128,6 +128,11 @@
 (defn get-account-id-by-ident [ident]
   (q [:find '?e :where ['?e :account/ident ident]] (db @conn)))
 
+(defn get-account [ident]
+  (->> [:find '?acc :where ['?acc :account/ident ident]]
+       (query-entities)
+       (first)))
+
 (defn entry-to-entity [{:keys [account cents]}]
   {:db/id (tempid :db.part/user)
    :entry/account (get-account-id-by-ident account)
@@ -147,24 +152,16 @@
 
 @(insert-transactions example-transactions)
 
-(defn get-transactions []
+(defn query-entities [query]
   (->> (db @conn)
-       (q '[:find ?evn
-            :where
-            [?evn :transaction/date _]])
+       (q query)
        (map first)
        (map (partial d/entity (db @conn)))))
 
+(defn get-all-transactions []
+  (query-entities '[:find ?txn
+                    :where
+                    [?txn :transaction/date _]]))
+
 (defn get-transaction [transaction-id]
   (d/entity (db @conn) transaction-id))
-
-(->> (db @conn)
-     (q '[:find ?evn
-          :where
-          [?acc :account/type :account.type/expense]
-          [?ent :entry/account ?acc]
-          [?evn :transaction/entry ?ent]
-          [?evn :transaction/comment ?comment]])
-     (first) (first)
-     (d/entity (db @conn))
-     (into {}))
