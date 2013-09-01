@@ -23,13 +23,14 @@
                       (filter (comp (partial = cur-account) :entry/account))
                       (map :entry/cents)
                       (reduce + 0)
-                      (format-cents))]
+                      (format-cents))
+     is-other    (comp (partial not= cur-account) :entry/account)]
     
     [:tr {:class css-classes}
      [:td date-link]
      [:td txn-link]
      [:td oparty-link]
-     (display-account-in-table (comp (partial not= cur-account) :entry/account) transaction)
+     (display-account-in-table is-other transaction)
      [:td.text-right total]]))
 
 (defn render-ledger-table [params]
