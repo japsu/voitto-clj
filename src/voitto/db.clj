@@ -128,6 +128,12 @@
 (defn get-account-id-by-ident [ident]
   (q [:find '?e :where ['?e :account/ident ident]] (db @conn)))
 
+(defn query-entities [query]
+  (->> (db @conn)
+       (q query)
+       (map first)
+       (map (partial d/entity (db @conn)))))
+
 (defn get-account [ident]
   (->> [:find '?acc :where ['?acc :account/ident ident]]
        (query-entities)
@@ -151,12 +157,6 @@
        (d/transact @conn)))
 
 @(insert-transactions example-transactions)
-
-(defn query-entities [query]
-  (->> (db @conn)
-       (q query)
-       (map first)
-       (map (partial d/entity (db @conn)))))
 
 (defn get-all-transactions []
   (query-entities '[:find ?txn

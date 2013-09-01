@@ -18,7 +18,7 @@
 (defroutes routes
   (GET "/" [] dashboard-view)
   (GET "/daybook" [] daybook-view)
-  (GET "/ledger/:account-ident" [account-ident] ledger-view)
+  (GET "/ledger/:account" [account] ledger-view)
   (context "/transaction/:transaction-id" [transaction-id]
            (GET "/" [] transaction-view)
            (POST "/" [] transaction-update-handler))

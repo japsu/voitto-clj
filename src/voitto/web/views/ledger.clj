@@ -19,7 +19,10 @@
      oparty-link (->> (:transaction/otherParty transaction)
                       (escape-html)
                       (transaction-link transaction))
-     total       (->> (transaction-total transaction)
+     total       (->> (:transaction/entry transaction)
+                      (filter (comp (partial = cur-account) :entry/account))
+                      (map :entry/cents)
+                      (reduce + 0)
                       (format-cents))]
     
     [:tr {:class css-classes}
@@ -27,11 +30,12 @@
      [:td txn-link]
      [:td oparty-link]
      (display-account-in-table (comp (partial not= cur-account) :entry/account) transaction)
-     [:td total]]))
+     [:td.text-right total]]))
 
-(defn render-ledger-table [account params]
+(defn render-ledger-table [params]
   (let
-    [transactions (query-entities [:find '?txn
+    [account      (params :account)
+     transactions (query-entities [:find '?txn
                                    :where
                                    ['?txn :transaction/entry '?etr]
                                    ['?etr :entry/account (:db/id account)]])]
@@ -43,23 +47,24 @@
        [:th "Comment"]
        [:th "Other party"]
        [:th "Other account"]
-       [:th "Sum"]]]
+       [:th.text-right "Sum"]]]
      [:tbody
       (map (partial render-transaction-in-ledger account) transactions)]]))
 
 (def ledger-view-params
-  {:account {:parse get-account :format :account/ident}
+  {:account {:parse get-account :format (comp name :account/ident)}
    :from    {:parse parse-date :format format-date}
    :to      {:parse parse-date :format format-date}})
 
 (defn ledger-view [req]
-  (prn req)
   (let
-    [parsed-params (parse-params ledger-view-params (:params req))
-     account (get-account :cash)]
+    [params       (parse-params ledger-view-params (:params req))
+     account-name (->> (params :account)
+                       (:account/name)
+                       (escape-html))]
     (respond req :ledger
            [:div#content.container
             [:h1 "Ledger "
-             [:small (escape-html (:account/name account))]]
-            (render-ledger-table account parsed-params)])))            
+             [:small account-name]]
+            (render-ledger-table params)])))            
   

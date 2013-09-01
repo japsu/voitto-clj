@@ -19,7 +19,7 @@
   (reduce (partial parse-param param-descr) {} params))
 
 (defn ledger-uri [{ident :account/ident}]
-  (str "/ledger/" ident))
+  (str "/ledger/" (name ident)))
 
 (defn ledger-link [{name :account/name :as account}]
   [:a {:href (ledger-uri account)} (escape-html name)])
