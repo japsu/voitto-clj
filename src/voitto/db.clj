@@ -1,7 +1,7 @@
 (ns voitto.db
   (:use [datomic.api :only [q db tempid] :as d]
         [clj-time.coerce :only [to-date]]
-        [voitto.model :only [example-transactions]]))
+        [voitto.model :only [example-transactions sort-transactions]]))
 
 (def db-uri "datomic:mem://play")
 (d/create-database db-uri)
@@ -159,9 +159,9 @@
 @(insert-transactions example-transactions)
 
 (defn get-all-transactions []
-  (query-entities '[:find ?txn
-                    :where
-                    [?txn :transaction/date _]]))
+  (sort-transactions (query-entities '[:find ?txn
+                                       :where
+                                       [?txn :transaction/date _]])))
 
 (defn get-transaction [transaction-id]
   (d/entity (db @conn) transaction-id))

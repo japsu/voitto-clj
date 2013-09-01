@@ -60,3 +60,13 @@
 			 (map (partial reduce + 0))
 			 (map #(Math/abs %))
 			 (apply max)))
+
+(defn compare-transactions [tx1 tx2]
+  (let
+    [txp1 [(:transaction/date tx1) (:db/id tx1)]
+     txp2 [(:transaction/date tx2) (:db/id tx2)]]
+    
+    (compare txp1 txp2)))
+
+(defn sort-transactions [transactions]
+  (sort compare-transactions transactions))
