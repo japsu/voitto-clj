@@ -61,7 +61,7 @@
 
 (defn daybook-view [req]
   (let
-    [params (parse-params daybook-view-params (req :params))
+    [params       (parse-params daybook-view-params (req :params))
      transactions (query-entities '[:find ?txn
                                     :in $ ?from ?to
                                     :where
