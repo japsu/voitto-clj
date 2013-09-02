@@ -4,14 +4,7 @@
        voitto.model
        voitto.db
        voitto.web.views.base
-       voitto.web.views.helpers))
-
-
-(defn transaction-uri [{transaction-id :db/id :or {transaction-id "new"}}]
-  (str "/transaction/" transaction-id))
-
-(defn transaction-link [transaction content]
-  [:a {:href (transaction-uri transaction)} content])
+       voitto.web.views.uris))
 
 (defn input [{:keys [label name type value] :or {type "text" value ""}}]
   (let
@@ -84,5 +77,4 @@
 (defn save-transaction [])
 
 (defn transaction-update-handler [req]
-  (prn req)
   (respond req :daybook [:h1 "Ok"]))

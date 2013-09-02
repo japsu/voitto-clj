@@ -128,9 +128,8 @@
 (defn get-account-id-by-ident [ident]
   (q [:find '?e :where ['?e :account/ident ident]] (db @conn)))
 
-(defn query-entities [query]
-  (->> (db @conn)
-       (q query)
+(defn query-entities [query & inputs]
+  (->> (apply q query (db @conn) inputs)
        (map first)
        (map (partial d/entity (db @conn)))))
 

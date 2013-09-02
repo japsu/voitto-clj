@@ -1,9 +1,8 @@
 (ns voitto.web.views.dashboard
-  (use voitto.helpers
-       voitto.model
-       voitto.db
-       voitto.web.views.base
-       voitto.web.views.daybook))
+  (:use voitto.model
+        voitto.db
+        voitto.web.views.base
+        voitto.web.views.daybook))
 
 (defn dashboard-view [req]
   (let

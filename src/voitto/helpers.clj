@@ -1,6 +1,7 @@
 (ns voitto.helpers
-  (use [clj-time.format :only [formatter parse unparse unparse-local-date]]
-       [clj-time.coerce :only [from-date to-date]]))
+  (:use [clj-time.core :only [local-date]]
+        [clj-time.format :only [formatter parse unparse unparse-local-date]]
+        [clj-time.coerce :only [from-date to-date]]))
 
 ;; TODO localization
 (def decimal-separator ",")
@@ -28,3 +29,14 @@
 
 (defn parse-date [date-str]
   (to-date (parse custom-formatter date-str)))
+
+(defn get-current-fiscal-year-start []
+  (to-date (local-date 2013 1 1)))
+
+(defn get-current-fiscal-year-end []
+  (to-date (local-date 2013 12 31)))
+
+(defn to-from-on [{:keys [from to]}]
+  (if
+    (= from to) (str "On " (format-date from))
+    (str "From " (format-date from) " to " (format-date to))))

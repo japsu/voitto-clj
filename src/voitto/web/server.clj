@@ -3,6 +3,7 @@
        [compojure.handler :only [site]]
        [compojure.core :only [defroutes GET POST DELETE ANY context]]
        org.httpkit.server
+       voitto.helpers
        voitto.web.views.base
        voitto.web.views.daybook
        voitto.web.views.dashboard

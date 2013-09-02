@@ -4,26 +4,12 @@
         voitto.model
         voitto.db
         voitto.web.views.base
-        voitto.web.views.transaction
-        voitto.web.views.helpers))
+        voitto.web.views.uris))
 
 (defn daybook-toolbar []
   [:div.btn-toolbar.pull-right
    [:div.btn-group
     [:a.btn.btn-success {:href "/transaction/new"} "New transaction"]]])
-
-(def daybook-view-params
-  {:from {:format format-date :parse parse-date}
-   :to   {:format format-date :parse parse-date}})
-
-(defn daybook-uri [params]
-  (->> params
-       (format-params daybook-view-params)
-       (hutil/url "/daybook")
-       (hutil/to-str)))
-
-(defn date-link [date]
-  [:a {:href (daybook-uri {:from date :to date})} (format-date date)])
 
 (defn display-account-in-table [pred transaction]
   (let
@@ -46,8 +32,6 @@
      txn-link    (->> (:transaction/comment transaction)
                       (escape-html)
                       (transaction-link transaction))
-     ;oparty-link (->> (:transaction/otherParty transaction)
-     ;                 (other-party-link))
      oparty-link (->> (:transaction/otherParty transaction)
                       (escape-html)
                       (transaction-link transaction))
@@ -77,9 +61,18 @@
 
 (defn daybook-view [req]
   (let
-    [params (parse-params daybook-view-params (req :params))]
+    [params (parse-params daybook-view-params (req :params))
+     transactions (query-entities '[:find ?txn
+                                    :in $ ?from ?to
+                                    :where
+                                    [?txn :transaction/date ?date]
+                                    [(>= ?date ?from)]
+                                    [(<= ?date ?to)]]
+                                  (params :from)
+                                  (params :to))]
     (respond req :daybook
            [:div#content.container
             (daybook-toolbar) 
-            [:h1 "Daybook"]
-            (render-transaction-table (get-all-transactions))])))
+            [:h1 "Daybook "
+             [:small (to-from-on params)]]
+            (render-transaction-table transactions)])))

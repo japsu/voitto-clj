@@ -5,8 +5,7 @@
         voitto.db
         voitto.web.views.base
         voitto.web.views.daybook
-        voitto.web.views.transaction
-        voitto.web.views.helpers))
+        voitto.web.views.uris))
 
 (defn render-transaction-in-ledger [cur-account transaction]
   (let
@@ -33,39 +32,40 @@
      (display-account-in-table is-other transaction)
      [:td.text-right total]]))
 
-(defn render-ledger-table [params]
-  (let
-    [account      (params :account)
-     transactions (query-entities [:find '?txn
-                                   :where
-                                   ['?txn :transaction/entry '?etr]
-                                   ['?etr :entry/account (:db/id account)]])]
-    
-    [:table.table.table-striped
-     [:thead
-      [:tr
-       [:th "Date"]
-       [:th "Comment"]
-       [:th "Other party"]
-       [:th "Other account"]
-       [:th.text-right "Sum"]]]
-     [:tbody
-      (map (partial render-transaction-in-ledger account) transactions)]]))
-
-(def ledger-view-params
-  {:account {:parse get-account :format (comp name :account/ident)}
-   :from    {:parse parse-date :format format-date}
-   :to      {:parse parse-date :format format-date}})
+(defn render-ledger-table [cur-account transactions]
+  [:table.table.table-striped
+   [:thead
+    [:tr
+     [:th "Date"]
+     [:th "Comment"]
+     [:th "Other party"]
+     [:th "Other account"]
+     [:th.text-right "Sum"]]]
+   [:tbody
+    (map (partial render-transaction-in-ledger cur-account) transactions)]])
 
 (defn ledger-view [req]
   (let
-    [params       (parse-params ledger-view-params (:params req))
-     account-name (->> (params :account)
-                       (:account/name)
-                       (escape-html))]
+    [params       (parse-params ledger-view-params (req :params))
+     account      (params :account)
+     account-name (escape-html (:account/name account))
+	   transactions (query-entities '[:find ?txn
+                                    :in $ [?acc ?from ?to]
+                                    :where
+                                   
+                                    [?txn :transaction/entry ?etr]
+                                    [?etr :entry/account ?acc]
+                                   
+                                    [?etr :transaction/date ?date]
+                                    [(>= ?date ?from)]
+                                    [(<= ?date ?to)]]
+                                  [(:db/id account)
+                                  (:from params)
+                                  (:to params)])]
+    
     (respond req :ledger
            [:div#content.container
             [:h1 "Ledger "
              [:small account-name]]
-            (render-ledger-table params)])))            
+            (render-ledger-table account transactions)])))            
   

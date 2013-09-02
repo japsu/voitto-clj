@@ -1,12 +1,13 @@
 (ns voitto.web.views.base
-  (use voitto.core)
-  (use hiccup.core)
-  (use hiccup.page))
+  (:use voitto.core
+        hiccup.core
+        hiccup.page))
 
 (defn render-navigation-link [current-section [section href text]]
   (let
-    [css-class (if (= section current-section) "active"
-                   nil)]
+    [css-class (if
+                 (= section current-section) "active"
+                 nil)]
     
     [:li {:class css-class}
      [:a {:href href} text]]))
