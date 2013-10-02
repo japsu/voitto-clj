@@ -22,7 +22,7 @@
                       (filter (comp (partial = cur-account) :entry/account))
                       (map :entry/cents)
                       (reduce + 0)
-                      (format-cents))
+                      (cents->str))
      is-other    (comp (partial not= cur-account) :entry/account)]
     
     [:tr {:class css-classes}
@@ -50,19 +50,19 @@
      account      (params :account)
      account-name (escape-html (:account/name account))
 	   transactions (query-entities '[:find ?txn
-                                    :in $ [?acc ?from ?to]
+                                    :in $ ?acc ?from ?to
                                     :where
                                    
                                     [?txn :transaction/entry ?etr]
                                     [?etr :entry/account ?acc]
                                    
-                                    [?etr :transaction/date ?date]
+                                    [?txn :transaction/date ?date]
                                     [(>= ?date ?from)]
                                     [(<= ?date ?to)]]
-                                  [(:db/id account)
+                                  (:db/id account)
                                   (:from params)
-                                  (:to params)])]
-    
+                                  (:to params))]
+
     (respond req :ledger
            [:div#content.container
             [:h1 "Ledger "

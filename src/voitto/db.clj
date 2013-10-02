@@ -1,3 +1,4 @@
+
 (ns voitto.db
   (:use [datomic.api :only [q db tempid] :as d]
         [clj-time.coerce :only [to-date]]
@@ -134,14 +135,26 @@
        (map (partial d/entity (db @conn)))))
 
 (defn get-account [ident]
-  (->> [:find '?acc :where ['?acc :account/ident ident]]
-       (query-entities)
-       (first)))
+  (first (query-entities
+           '[:find ?acc
+             :in $ ?acc-id
+             :where [?acc :account/ident ?acc-id]]
+           ident)))
 
 (defn entry-to-entity [{:keys [account cents]}]
   {:db/id (tempid :db.part/user)
    :entry/account (get-account-id-by-ident account)
    :entry/cents cents})
+
+(defn new-entity []
+  {:db/id (tempid :db.part/user)})
+
+(defn get-or-new [id]
+  (let
+    [existing (d/entity (db @conn) id)]
+    
+    (if (nil? existing) (new-entity)
+        existing)))
 
 (defn transaction-to-entity [{:keys [date comment other-party entries]}]
   {:db/id (tempid :db.part/user)
@@ -156,6 +169,7 @@
        (d/transact @conn)))
 
 @(insert-transactions example-transactions)
+(get-account :openings)
 
 (defn get-all-transactions []
   (sort-transactions (query-entities '[:find ?txn

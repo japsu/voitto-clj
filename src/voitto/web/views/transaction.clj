@@ -19,14 +19,13 @@
     [:button.btn.btn-danger {:type "submit" :name "_method" :value "delete"} "Delete"]
     [:button.btn.btn-success {:type "submit" :name "_method" :value "post"} "Save"]]])
 
+(transaction-uri {:db/id 5})
+
 (defn render-transaction-form [transaction]
   (let
-    [date        (->> (or (:transaction/date transaction) (java.util.Date.))
-                      (format-date))
-     comment     (->> (or (:transaction/comment transaction) "")
-                      (escape-html))
-     other-party (->> (or (:transaction/otherParty transaction) "")
-                      (escape-html))]
+    [date        (date->str   (or (:transaction/date transaction)       (java.util.Date.)))
+     comment     (escape-html (or (:transaction/comment transaction)    ""))
+     other-party (escape-html (or (:transaction/otherParty transaction) ""))]
     
     [:form {:role "form" :method "post" :action (transaction-uri transaction)}
      (transaction-toolbar)
@@ -50,15 +49,15 @@
 	    [:div.row
 	     [:div.form-group.col-md-8
 	      [:label {:for "txn-input-account"} "Account"]
-	      [:input#txn-input-account.form-control {:type "text" :name "account[]"}]] 
+	      [:input#txn-input-account.form-control {:type "text" :name "account"}]] 
 	     [:div.form-group.col-md-4
 	      [:label {:for "txn-input-sum"} "Sum"]
-	      [:input#txn-input-sum.form-control.col-md-4 {:type "text" :name "sum[]"}]]]
+	      [:input#txn-input-sum.form-control.col-md-4 {:type "text" :name "sum"}]]]
 	    [:div.row
 	     [:div.form-group.col-md-8
-	      [:input.form-control {:type "text" :name "account[]"}]]
+	      [:input.form-control {:type "text" :name "account"}]]
 	     [:div.form-group.col-md-4
-	      [:input.form-control.col-md-4 {:type "text" :name "sum[]"}]]]]]))
+	      [:input.form-control.col-md-4 {:type "text" :name "sum"}]]]]]))
 
 (defn transaction-view [req]
   (let

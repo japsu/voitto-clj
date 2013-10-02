@@ -29,17 +29,16 @@
 
 
 (def daybook-view-params
-  {:from {:format format-date :parse parse-date :default get-current-fiscal-year-start}
-   :to   {:format format-date :parse parse-date :default get-current-fiscal-year-end}})
+  {:from {:format date->str :parse str->date :default get-current-fiscal-year-start}
+   :to   {:format date->str :parse str->date :default get-current-fiscal-year-end}})
 
 (defn daybook-uri [params]
-  (->> params
-       (format-params daybook-view-params)
+  (->> (format-params daybook-view-params params)
        (hutil/url "/daybook")
        (hutil/to-str)))
 
 (defn date-link [date]
-  [:a {:href (daybook-uri {:from date :to date})} (format-date date)])
+  [:a {:href (daybook-uri {:from date :to date})} (date->str date)])
 
 
 (defn ledger-uri [{ident :account/ident}]
@@ -50,9 +49,18 @@
 
 (def ledger-view-params
   {:account {:parse get-account :format (comp name :account/ident)}
-   :from    {:parse parse-date :format format-date :default get-current-fiscal-year-start}
-   :to      {:parse parse-date :format format-date :default get-current-fiscal-year-end}})
+   :from    {:parse str->date :format date->str :default get-current-fiscal-year-start}
+   :to      {:parse str->date :format date->str :default get-current-fiscal-year-end}})
 
+
+(def transaction-view-params
+  {:transaction {:parse get-or-new :format :db/id :default new-entity}
+   :date        {:parse str->date :format date->str :default today}
+   :comment     {}
+   :other-party {}
+   :account     {:parse (partial map get-account) :format (partial map :db/id)}
+   :sum         {:parse (partial map str->cents) :format (partial map cents->str)}})
+   
 
 (defn transaction-uri [{transaction-id :db/id :or {transaction-id "new"}}]
   (str "/transaction/" transaction-id))

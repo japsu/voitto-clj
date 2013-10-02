@@ -36,7 +36,7 @@
                       (escape-html)
                       (transaction-link transaction))
      total       (->> (transaction-total transaction)
-                      (format-cents))]
+                      (cents->str))]
     
     [:tr {:class css-classes}
      [:td date-link]
