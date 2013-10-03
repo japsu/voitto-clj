@@ -2,7 +2,8 @@
 (ns voitto.db
   (:use [datomic.api :only [q db tempid] :as d]
         [clj-time.coerce :only [to-date]]
-        [voitto.model :only [example-transactions sort-transactions]]))
+        [voitto.model :only [example-transactions sort-transactions]]
+        [clojure.set :only [rename-keys]]))
 
 (def db-uri "datomic:mem://play")
 (d/create-database db-uri)
@@ -183,3 +184,6 @@
      sums        (attributes :sum)
      known-attrs (select-keys attributes (keys transaction-short-key-to-long))
      db-attrs    (rename-keys attributes transaction-short-key-to-long)]))
+
+(defn delete-transaction [transaction-id]
+  (d/transact conn [:db/retractEntity (Long. transaction-id)]))
