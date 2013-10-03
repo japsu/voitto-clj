@@ -12,23 +12,23 @@
 	  (seq [[:label {:for elem-id} label]
           [:input.form-control {:id elem-id :type type :name name :value value}]])))
 
-(defn transaction-toolbar []
+(defn transaction-toolbar [mode]
   [:div.btn-toolbar.pull-right
    [:div.btn-group
     [:a.btn.btn-default {:href "/daybook"} "Back to daybook"]
-    [:button.btn.btn-danger {:type "submit" :name "_method" :value "delete"} "Delete"]
-    [:button.btn.btn-success {:type "submit" :name "_method" :value "post"} "Save"]]])
-
-(transaction-uri {:db/id 5})
+    (if (= mode :new) ()
+      [:button.btn.btn-danger {:type "submit" :name "action" :value "delete"} "Delete"])
+    [:button.btn.btn-success {:type "submit" :name "action" :value "post"} "Save"]]])
 
 (defn render-transaction-form [transaction]
   (let
-    [date        (date->str   (or (:transaction/date transaction)       (java.util.Date.)))
-     comment     (escape-html (or (:transaction/comment transaction)    ""))
-     other-party (escape-html (or (:transaction/otherParty transaction) ""))]
+    [date         (date->str   (or (:transaction/date transaction)       (java.util.Date.)))
+     comment      (escape-html (or (:transaction/comment transaction)    ""))
+     other-party  (escape-html (or (:transaction/otherParty transaction) ""))
+     toolbar-mode (if (nil? (:db/id transaction)) :new :existing)]
     
     [:form {:role "form" :method "post" :action (transaction-uri transaction)}
-     (transaction-toolbar)
+     (transaction-toolbar toolbar-mode)
      [:legend "Transaction details"]
 	   [:fieldset
 	    [:div.row
@@ -37,8 +37,8 @@
 	      [:label "Recurrence"]
 	      [:div.checkbox
 	       [:label
-	        [:input#txn-input-repeat {:type "checkbox" :name "repeat"}]
-	        "Repeat..."]]]]
+	        [:input#txn-input-repeat {:type "checkbox" :name "repeat" :disabled "disabled"}]
+	        [:span.text-muted "Repeat..."]]]]]
 	    
 	    [:div.row
 	     [:div.form-group.col-md-8 (input {:label "Comment" :name "comment" :value comment})] 
@@ -61,13 +61,10 @@
 
 (defn transaction-view [req]
   (let
-    [transaction-id (get-in req [:params :transaction-id])
-     transaction    (case transaction-id
-                    "new" {}
-                    (->> (get-in req [:params :transaction-id])
-                         (Long.)
-                         (get-transaction)))]
+    [params      (parse-params transaction-view-params (req :params))
+     transaction (params :transaction)]
     
+    (prn transaction)
     (respond req :daybook
              [:div#content.container
               (render-transaction-form transaction)])))
@@ -76,4 +73,11 @@
 (defn save-transaction [])
 
 (defn transaction-update-handler [req]
-  (respond req :daybook [:h1 "Ok"]))
+  (let
+    [params         (parse-params transaction-update-params)
+     action         (params :action)
+     transaction-id (get-in params [:transaction :db/id])]
+    
+    (case action
+      "update" (update-transaction transaction-id params)
+      "delete" (delete-transaction transaction-id))))

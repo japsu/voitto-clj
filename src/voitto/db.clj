@@ -146,15 +146,10 @@
    :entry/account (get-account-id-by-ident account)
    :entry/cents cents})
 
-(defn new-entity []
-  {:db/id (tempid :db.part/user)})
-
-(defn get-or-new [id]
-  (let
-    [existing (d/entity (db @conn) id)]
-    
-    (if (nil? existing) (new-entity)
-        existing)))
+(def transaction-short-key-to-long
+  {:date :transaction/date
+   :comment :transaction/comment
+   :other-party :transaction/otherParty})
 
 (defn transaction-to-entity [{:keys [date comment other-party entries]}]
   {:db/id (tempid :db.part/user)
@@ -168,8 +163,11 @@
        (map transaction-to-entity)
        (d/transact @conn)))
 
+(defn get-or-new [id]
+  (if (= id "new") {:db/id nil}
+    (d/entity (db @conn) (Long. id))))
+
 @(insert-transactions example-transactions)
-(get-account :openings)
 
 (defn get-all-transactions []
   (sort-transactions (query-entities '[:find ?txn
@@ -177,4 +175,11 @@
                                        [?txn :transaction/date _]])))
 
 (defn get-transaction [transaction-id]
-  (d/entity (db @conn) transaction-id))
+  (d/entity (db @conn) (Long. transaction-id)))
+
+(defn update-transaction [transaction-id attributes]
+  (let
+    [accounts    (attributes :account)
+     sums        (attributes :sum)
+     known-attrs (select-keys attributes (keys transaction-short-key-to-long))
+     db-attrs    (rename-keys attributes transaction-short-key-to-long)]))

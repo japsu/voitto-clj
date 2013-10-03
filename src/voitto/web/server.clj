@@ -20,7 +20,7 @@
   (GET "/" [] dashboard-view)
   (GET "/daybook" [] daybook-view)
   (GET "/ledger/:account" [account] ledger-view)
-  (context "/transaction/:transaction-id" [transaction-id]
+  (context "/transaction/:transaction" [transaction]
            (GET "/" [] transaction-view)
            (POST "/" [] transaction-update-handler))
   (files "/")

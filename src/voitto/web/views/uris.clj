@@ -54,13 +54,15 @@
 
 
 (def transaction-view-params
-  {:transaction {:parse get-or-new :format :db/id :default new-entity}
+  {:transaction {:parse get-or-new :format :db/id :default (constantly {})}})
+
+(def transaction-update-params
+  {:transaction {:parse get-or-new :format :db/id :default (constantly {})}
    :date        {:parse str->date :format date->str :default today}
    :comment     {}
    :other-party {}
    :account     {:parse (partial map get-account) :format (partial map :db/id)}
    :sum         {:parse (partial map str->cents) :format (partial map cents->str)}})
-   
 
 (defn transaction-uri [{transaction-id :db/id :or {transaction-id "new"}}]
   (str "/transaction/" transaction-id))
